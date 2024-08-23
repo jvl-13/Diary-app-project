@@ -1,40 +1,51 @@
 import React from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
-import "../styles/styles.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { persistStore } from 'redux-persist';
+import { store } from '../redux/store';
 
 function Navbar() {
+  const user = useSelector((state) => state.auth.user);
+  const userId = useSelector((state) => state.auth.user?._id);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Dispatch logout action
+    dispatch({ type: 'LOGOUT' });
+
+    // Purge redux-persist store
+    persistStore(store).purge();
+
+    // Clear localStorage
+    localStorage.clear();
+
+    // Navigate to home page
+    navigate("/");
+  };
+
   return (
-    <div className="bg-yellow-100 h-16 items-center flex">
+    <div className=" h-16 items-center flex">
       <div className="ml-7 w-1/5">
-        <a
-          href="/"
+        <Link
+          to="/user"
           className="block cursor-pointer py-1.5 font-brand leading-relaxed tracking-normal text-inherit antialiased text-3xl"
         >
-          DEARDIARY
-        </a>
+          MiNook
+        </Link>
       </div>
       <div className="w-3/5 relative py-2.5 leading-relaxed font-sans text-right">
-        <input
-          type="search"
-          name="serch"
-          placeholder="Search. . . "
-          className="bg-white font-text w-64 h-10 px-4 rounded-full text-sm focus:outline-none  tracking-wider"
-        ></input>
-        <button type="submit" className="ml-3">
-          <FontAwesomeIcon className="fa-xl" icon={faSearch} />
-        </button>
+        {/* Search bar example */}
       </div>
       <div className="mr-7 w-1/5 text-right">
-        <button>
-          <Link to='/'>
-          <span className="font-text mr-2">@email </span><FontAwesomeIcon className="fa-xl text-right" icon={faSignOutAlt} />
-          
-          </Link>
-          
-        </button>
+        <a href={`/dashboard/${userId}`}><span className="text-sm font-text mr-2">{user.email}</span></a>
+        {user && (
+          <button onClick={handleLogout}>
+            <FontAwesomeIcon className="fa-xl text-right" icon={faSignOutAlt} />
+          </button>
+        )}
       </div>
     </div>
   );
